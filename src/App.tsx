@@ -13,19 +13,17 @@ const queryClient = new QueryClient({
 
 export default function App() {
   return (
-    <main>
-      <QueryClientProvider client={queryClient}>
-        <ToastContainer
-          autoClose={2000}
-          theme="colored"
-          transition={Slide}
-          closeOnClick
-          pauseOnFocusLoss={false}
-        />
-        <AppRoutes />
-        {/* React Query Devtools for debugging queries */}
-        <ReactQueryDevtools initialIsOpen={false} />
-      </QueryClientProvider>
-    </main>
+    <QueryClientProvider client={queryClient}>
+      <ToastContainer
+        autoClose={2000}
+        theme="colored"
+        transition={Slide}
+        closeOnClick
+        pauseOnFocusLoss={false}
+      />
+      <AppRoutes />
+      {/* React Query Devtools for debugging queries */}
+      <ReactQueryDevtools initialIsOpen={false} />
+    </QueryClientProvider>
   );
 }
