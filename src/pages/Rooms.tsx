@@ -5,6 +5,7 @@ import type { Room } from "../types/room";
 import LoadingSpinner from "@components/ui/LoadingSpinner";
 import ErrorMessage from "@components/ui/ErrorMessage";
 import ConfirmDeleteModal from "@components/rooms/ConfirmDeleteModal";
+import RoomFormModal from "@components/rooms/RoomFormModal";
 
 type ModalState =
   | { type: "create" }
@@ -80,6 +81,12 @@ export default function Rooms() {
         isOpen={modalState?.type === "delete"}
         onClose={handleCloseModal}
         room={modalState?.type === "delete" ? modalState.room : null}
+      />
+
+      <RoomFormModal
+        isOpen={modalState?.type === "create" || modalState?.type === "edit"}
+        onClose={handleCloseModal}
+        roomToEdit={modalState?.type === "edit" ? modalState.room : null}
       />
     </div>
   );

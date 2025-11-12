@@ -1,15 +1,12 @@
 import type { Room } from "../../types/room";
 import { PencilSquareIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { formatTimeForInput } from "../../utils/formatters";
 
 interface RoomListProps {
   rooms: Room[];
   onEdit: (room: Room) => void;
   onDelete: (room: Room) => void;
 }
-
-const formatTime = (timeStr: string) => {
-  return timeStr.substring(0, 5);
-};
 
 export default function RoomList({ rooms, onEdit, onDelete }: RoomListProps) {
   return (
@@ -61,7 +58,8 @@ export default function RoomList({ rooms, onEdit, onDelete }: RoomListProps) {
                     {room.capacity} pessoas
                   </td>
                   <td className="px-3 py-4 text-sm whitespace-nowrap text-gray-500">
-                    {formatTime(room.start_time)} - {formatTime(room.end_time)}
+                    {formatTimeForInput(room.start_time)} -{" "}
+                    {formatTimeForInput(room.end_time)}
                   </td>
                   <td className="relative py-4 pr-4 pl-3 text-right text-sm font-medium whitespace-nowrap sm:pr-0">
                     <button
