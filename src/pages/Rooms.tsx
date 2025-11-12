@@ -4,6 +4,7 @@ import RoomList from "@components/rooms/RoomList";
 import type { Room } from "../types/room";
 import LoadingSpinner from "@components/ui/LoadingSpinner";
 import ErrorMessage from "@components/ui/ErrorMessage";
+import ConfirmDeleteModal from "@components/rooms/ConfirmDeleteModal";
 
 type ModalState =
   | { type: "create" }
@@ -74,6 +75,12 @@ export default function Rooms() {
       <div className="bg-white shadow-sm sm:rounded-lg">
         <div className="px-4 py-5 sm:p-6">{renderContent()}</div>
       </div>
+
+      <ConfirmDeleteModal
+        isOpen={modalState?.type === "delete"}
+        onClose={handleCloseModal}
+        room={modalState?.type === "delete" ? modalState.room : null}
+      />
     </div>
   );
 }
