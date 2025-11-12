@@ -4,6 +4,7 @@ import type { Room } from "../../types/room";
 import Modal from "../ui/Modal";
 import ErrorMessage from "../ui/ErrorMessage";
 import { AxiosError } from "axios";
+import { useEffect } from "react";
 
 interface ConfirmDeleteModalProps {
   isOpen: boolean;
@@ -25,7 +26,14 @@ export default function ConfirmDeleteModal({
     isPending: isDeleting,
     isError,
     error,
+    reset,
   } = useDeleteRoom();
+
+  useEffect(() => {
+    if (isOpen) {
+      reset();
+    }
+  }, [isOpen, reset]);
 
   const handleDelete = () => {
     if (!room) return;
@@ -36,8 +44,6 @@ export default function ConfirmDeleteModal({
       },
     });
   };
-
-  const apiError = error as AxiosError<FastAPIErrorDetail>;
 
   if (!room) return null;
 
@@ -58,8 +64,7 @@ export default function ConfirmDeleteModal({
             <div className="mt-2">
               <p className="text-sm text-gray-500">
                 Você tem certeza que deseja excluir esta sala? Esta ação não
-                pode ser desfeita. Todas as reservas associadas (futuras ou
-                passadas) também podem ser afetadas.
+                pode ser desfeita.
               </p>
             </div>
           </div>
@@ -69,7 +74,8 @@ export default function ConfirmDeleteModal({
           <div className="mt-4">
             <ErrorMessage
               message={
-                apiError?.response?.data?.detail || "Falha ao excluir a sala."
+                (error as AxiosError<FastAPIErrorDetail>)?.response?.data
+                  ?.detail || "Falha ao excluir a sala."
               }
             />
           </div>

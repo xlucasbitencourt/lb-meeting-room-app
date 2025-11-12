@@ -5,6 +5,7 @@ import { AxiosError } from "axios";
 import Modal from "../ui/Modal";
 import ErrorMessage from "../ui/ErrorMessage";
 import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
+import { useEffect } from "react";
 
 type FastAPIErrorDetail = {
   detail: string;
@@ -26,7 +27,14 @@ export default function ConfirmDeleteBookingModal({
     isPending: isDeleting,
     isError,
     error,
+    reset,
   } = useDeleteBooking();
+
+  useEffect(() => {
+    if (isOpen) {
+      reset();
+    }
+  }, [isOpen, reset]);
 
   const handleDelete = () => {
     if (booking) {
@@ -37,8 +45,6 @@ export default function ConfirmDeleteBookingModal({
       });
     }
   };
-
-  const apiError = error as AxiosError<FastAPIErrorDetail>;
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Excluir Reserva">
@@ -77,7 +83,8 @@ export default function ConfirmDeleteBookingModal({
         <div className="mt-4">
           <ErrorMessage
             message={
-              apiError?.response?.data?.detail || "Falha ao excluir a reserva."
+              (error as AxiosError<FastAPIErrorDetail>)?.response?.data
+                ?.detail || "Falha ao excluir a reserva."
             }
           />
         </div>
