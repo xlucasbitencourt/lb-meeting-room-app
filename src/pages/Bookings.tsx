@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { useGetBookings } from "../hooks/bookings/useGetBookings";
+import { useGetRooms } from "@hooks/rooms/useGetRooms";
 import BookingList from "../components/bookings/BookingList";
 import LoadingSpinner from "../components/ui/LoadingSpinner";
 import ErrorMessage from "../components/ui/ErrorMessage";
 import Pagination from "../components/ui/Pagination";
 import ConfirmDeleteBookingModal from "../components/bookings/ConfirmDeleteBookingModal";
 import type { Booking } from "../types/booking";
+import BookingFormModal from "@components/bookings/BookingFormModal";
 
 type ModalState =
   | { type: "create" }
@@ -18,20 +20,36 @@ export default function BookingsPage() {
   const [limit] = useState(10);
   const [modalState, setModalState] = useState<ModalState>(null);
 
-  const { data, isLoading, isError, error } = useGetBookings(page, limit);
+  const {
+    data: bookingsData,
+    isLoading: isLoadingBookings,
+    isError: isErrorBookings,
+    error: bookingsError,
+  } = useGetBookings(page, limit);
 
-  const totalPages = data ? Math.ceil(data.total_count / limit) : 0;
+  const {
+    data: roomsData,
+    isLoading: isLoadingRooms,
+    isError: isErrorRooms,
+    error: roomsError,
+  } = useGetRooms(1, 1000);
 
-  const handleOpenDeleteModal = (booking: Booking) => {
+  const totalPages = bookingsData
+    ? Math.ceil(bookingsData.total_count / limit)
+    : 0;
+
+  const handleOpenCreateModal = () => setModalState({ type: "create" });
+
+  const handleOpenEditModal = (booking: Booking) =>
+    setModalState({ type: "edit", booking });
+
+  const handleOpenDeleteModal = (booking: Booking) =>
     setModalState({ type: "delete", booking });
-  };
 
-  const handleCloseModal = () => {
-    setModalState(null);
-  };
+  const handleCloseModal = () => setModalState(null);
 
   const renderContent = () => {
-    if (isLoading) {
+    if (isLoadingBookings || isLoadingRooms) {
       return (
         <div className="px-4 py-5 sm:p-6">
           <LoadingSpinner />
@@ -39,17 +57,21 @@ export default function BookingsPage() {
       );
     }
 
-    if (isError) {
+    if (isErrorRooms || isErrorBookings) {
       return (
         <div className="px-4 py-5 sm:p-6">
           <ErrorMessage
-            message={error?.message || "Falha ao buscar as reservas."}
+            message={
+              roomsError?.message ||
+              bookingsError?.message ||
+              "Falha ao buscar as reservas."
+            }
           />
         </div>
       );
     }
 
-    if (!data || data.items.length === 0) {
+    if (!bookingsData || bookingsData.items.length === 0) {
       return (
         <div className="px-4 py-5 sm:p-6">
           <p className="text-center text-gray-500">
@@ -61,8 +83,8 @@ export default function BookingsPage() {
 
     return (
       <BookingList
-        bookings={data.items}
-        onEdit={() => {}}
+        bookings={bookingsData.items}
+        onEdit={handleOpenEditModal}
         onDelete={handleOpenDeleteModal}
       />
     );
@@ -75,7 +97,8 @@ export default function BookingsPage() {
           Gerenciamento de Reservas
         </h1>
         <button
-          onClick={() => {}}
+          onClick={handleOpenCreateModal}
+          disabled={isLoadingRooms || isErrorRooms}
           className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
         >
           Criar Nova Reserva
@@ -97,6 +120,13 @@ export default function BookingsPage() {
         isOpen={modalState?.type === "delete"}
         onClose={handleCloseModal}
         booking={modalState?.type === "delete" ? modalState.booking : null}
+      />
+
+      <BookingFormModal
+        isOpen={modalState?.type === "create" || modalState?.type === "edit"}
+        onClose={handleCloseModal}
+        bookingToEdit={modalState?.type === "edit" ? modalState.booking : null}
+        availableRooms={roomsData?.items || []}
       />
     </div>
   );
