@@ -1,7 +1,10 @@
 import { api } from "./api";
 import type { Room, RoomCreate, RoomUpdate } from "../types/room";
 
-export type GetRoomsResponse = Room[];
+export interface GetRoomsResponse {
+  items: Room[];
+  total_count: number;
+}
 
 /**
  * Busca a lista de salas (paginada)

@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useGetRooms } from "../hooks/rooms/useGetRooms";
-import RoomList from "@components/rooms/RoomList";
-import type { Room } from "../types/room";
-import LoadingSpinner from "@components/ui/LoadingSpinner";
-import ErrorMessage from "@components/ui/ErrorMessage";
-import ConfirmDeleteModal from "@components/rooms/ConfirmDeleteModal";
-import RoomFormModal from "@components/rooms/RoomFormModal";
+import RoomList from "../components/rooms/RoomList";
+import LoadingSpinner from "../components/ui/LoadingSpinner";
+import ErrorMessage from "../components/ui/ErrorMessage";
+import { type Room } from "../types/room";
+import ConfirmDeleteModal from "../components/rooms/ConfirmDeleteModal";
+import RoomFormModal from "../components/rooms/RoomFormModal";
+import Pagination from "../components/ui/Pagination";
 
 type ModalState =
   | { type: "create" }
@@ -13,11 +14,14 @@ type ModalState =
   | { type: "delete"; room: Room }
   | null;
 
-export default function Rooms() {
+export default function RoomsPage() {
   const [page, setPage] = useState(1);
+  const [limit] = useState(10);
   const [modalState, setModalState] = useState<ModalState>(null);
 
-  const { data: rooms, isLoading, isError, error } = useGetRooms(page);
+  const { data, isLoading, isError, error } = useGetRooms(page, limit);
+
+  const totalPages = data ? Math.ceil(data.total_count / limit) : 0;
 
   const handleOpenCreateModal = () => {
     setModalState({ type: "create" });
@@ -37,22 +41,34 @@ export default function Rooms() {
 
   const renderContent = () => {
     if (isLoading) {
-      return <LoadingSpinner />;
+      return (
+        <div className="px-4 py-5 sm:p-6">
+          <LoadingSpinner />
+        </div>
+      );
     }
 
     if (isError) {
       return (
-        <ErrorMessage message={error?.message || "Falha ao buscar as salas."} />
+        <div className="px-4 py-5 sm:p-6">
+          <ErrorMessage
+            message={error?.message || "Falha ao buscar as salas."}
+          />
+        </div>
       );
     }
 
-    if (!rooms || rooms.length === 0) {
-      return <p>Nenhuma sala encontrada.</p>;
+    if (!data || data.items.length === 0) {
+      return (
+        <div className="px-4 py-5 sm:p-6">
+          <p className="text-center text-gray-500">Nenhuma sala encontrada.</p>
+        </div>
+      );
     }
 
     return (
       <RoomList
-        rooms={rooms}
+        rooms={data.items}
         onEdit={handleOpenEditModal}
         onDelete={handleOpenDeleteModal}
       />
@@ -73,8 +89,16 @@ export default function Rooms() {
         </button>
       </div>
 
-      <div className="bg-white shadow-sm sm:rounded-lg">
-        <div className="px-4 py-5 sm:p-6">{renderContent()}</div>
+      <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
+        {renderContent()}
+
+        {totalPages > 0 && (
+          <Pagination
+            currentPage={page}
+            totalPages={totalPages}
+            onPageChange={setPage}
+          />
+        )}
       </div>
 
       <ConfirmDeleteModal
