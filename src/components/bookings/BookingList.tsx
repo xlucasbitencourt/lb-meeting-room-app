@@ -1,5 +1,9 @@
 import type { Booking } from "../../types/booking";
-import { PencilSquareIcon, TrashIcon } from "@heroicons/react/24/outline";
+import {
+  PencilSquareIcon,
+  TrashIcon,
+  UsersIcon,
+} from "@heroicons/react/24/outline";
 import { formatDateTime } from "../../utils/formatters";
 
 interface BookingListProps {
@@ -36,6 +40,12 @@ export default function BookingList({
                   scope="col"
                   className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
                 >
+                  Participantes
+                </th>
+                <th
+                  scope="col"
+                  className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+                >
                   Início
                 </th>
                 <th
@@ -66,6 +76,12 @@ export default function BookingList({
                     <span className="text-xs text-gray-400">
                       (ID: {booking.room.id})
                     </span>
+                  </td>
+                  <td className="px-3 py-4 text-sm whitespace-nowrap text-gray-500">
+                    <div className="flex items-center">
+                      <UsersIcon className="mr-1 h-4 w-4 text-gray-400" />
+                      {booking.attendees}
+                    </div>
                   </td>
                   <td className="px-3 py-4 text-sm whitespace-nowrap text-gray-500">
                     {formatDateTime(booking.start_time)}

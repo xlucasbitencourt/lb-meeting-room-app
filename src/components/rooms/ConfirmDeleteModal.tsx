@@ -3,12 +3,17 @@ import { useDeleteRoom } from "../../hooks/rooms/useRoomMutations";
 import type { Room } from "../../types/room";
 import Modal from "../ui/Modal";
 import ErrorMessage from "../ui/ErrorMessage";
+import { AxiosError } from "axios";
 
 interface ConfirmDeleteModalProps {
   isOpen: boolean;
   onClose: () => void;
   room: Room | null;
 }
+
+type FastAPIErrorDetail = {
+  detail: string;
+};
 
 export default function ConfirmDeleteModal({
   isOpen,
@@ -31,6 +36,8 @@ export default function ConfirmDeleteModal({
       },
     });
   };
+
+  const apiError = error as AxiosError<FastAPIErrorDetail>;
 
   if (!room) return null;
 
@@ -61,7 +68,9 @@ export default function ConfirmDeleteModal({
         {isError && (
           <div className="mt-4">
             <ErrorMessage
-              message={error?.message || "Falha ao excluir a sala."}
+              message={
+                apiError?.response?.data?.detail || "Falha ao excluir a sala."
+              }
             />
           </div>
         )}

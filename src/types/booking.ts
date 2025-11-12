@@ -6,6 +6,7 @@ export interface RoomInBooking {
 export interface Booking {
   id: number;
   responsible_name: string;
+  attendees: number;
   start_time: string;
   end_time: string;
   has_coffee: boolean;
@@ -15,6 +16,7 @@ export interface Booking {
 
 export interface BookingCreate {
   responsible_name: string;
+  attendees: number;
   start_time: string;
   end_time: string;
   has_coffee: boolean;
@@ -24,6 +26,7 @@ export interface BookingCreate {
 
 export interface BookingUpdate {
   responsible_name?: string;
+  attendees?: number;
   start_time?: string;
   end_time?: string;
   has_coffee?: boolean;

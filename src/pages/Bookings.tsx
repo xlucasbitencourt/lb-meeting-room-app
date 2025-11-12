@@ -4,14 +4,31 @@ import BookingList from "../components/bookings/BookingList";
 import LoadingSpinner from "../components/ui/LoadingSpinner";
 import ErrorMessage from "../components/ui/ErrorMessage";
 import Pagination from "../components/ui/Pagination";
+import ConfirmDeleteBookingModal from "../components/bookings/ConfirmDeleteBookingModal";
+import type { Booking } from "../types/booking";
+
+type ModalState =
+  | { type: "create" }
+  | { type: "edit"; booking: Booking }
+  | { type: "delete"; booking: Booking }
+  | null;
 
 export default function BookingsPage() {
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
+  const [modalState, setModalState] = useState<ModalState>(null);
 
   const { data, isLoading, isError, error } = useGetBookings(page, limit);
 
   const totalPages = data ? Math.ceil(data.total_count / limit) : 0;
+
+  const handleOpenDeleteModal = (booking: Booking) => {
+    setModalState({ type: "delete", booking });
+  };
+
+  const handleCloseModal = () => {
+    setModalState(null);
+  };
 
   const renderContent = () => {
     if (isLoading) {
@@ -46,7 +63,7 @@ export default function BookingsPage() {
       <BookingList
         bookings={data.items}
         onEdit={() => {}}
-        onDelete={() => {}}
+        onDelete={handleOpenDeleteModal}
       />
     );
   };
@@ -76,6 +93,11 @@ export default function BookingsPage() {
           />
         )}
       </div>
+      <ConfirmDeleteBookingModal
+        isOpen={modalState?.type === "delete"}
+        onClose={handleCloseModal}
+        booking={modalState?.type === "delete" ? modalState.booking : null}
+      />
     </div>
   );
 }
